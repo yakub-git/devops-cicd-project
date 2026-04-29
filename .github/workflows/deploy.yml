@@ -2,15 +2,26 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   deploy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Deploy (test step)
-        run: echo "Deployment pipeline working"
+      - name: Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd ~/DevOps-CI-CD-project
+            git pull origin main
+            docker stop $(docker ps -q) || true
+            docker rm $(docker ps -aq) || true
+            docker build -t my-node-app .
+            docker run -d -p 3000:3000 my-node-app
