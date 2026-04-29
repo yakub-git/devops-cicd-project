@@ -1,4 +1,4 @@
-name: CI/CD Deploy to EC2
+name: Deploy to EC2
 
 on:
   push:
@@ -6,22 +6,11 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Deploy to EC2 using SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            cd ~/DevOps-CI-CD-project
-            git pull origin main
-            docker build -t my-app .
-            docker stop app || true
-            docker rm app || true
-            docker run -d -p 3000:3000 --name app my-app
+      - name: Deploy (test step)
+        run: echo "Deployment pipeline working"
